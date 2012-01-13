@@ -1,0 +1,129 @@
+#!/usr/bin/env ruby
+# 2012-01-12 : Arturo Equihua
+# Utility to create a group of custom service files (a skeleton)
+# in the vcap-services structure
+#
+
+# The following is the list of files that are treated by the program
+
+# SERVICE-SPECIFIC FILES
+# 	Memcached/Gemfile
+# 	Memcached/Rakefile
+# 	Memcached/bin/memcached_backup
+# 	Memcached/bin/memcached_gateway
+# 	Memcached/bin/memcached_node
+# 	Memcached/config/memcached_backup.yml
+# 	Memcached/config/memcached_gateway.yml
+# 	Memcached/config/memcached_node.yml
+# 	Memcached/lib/memcached_service/common.rb
+# 	Memcached/lib/memcached_service/memcached_error.rb
+# 	Memcached/lib/memcached_service/memcached_node.rb
+# 	Memcached/lib/memcached_service/memcached_provisioner.rb
+# 	Memcached/resources/memcached.conf.erb
+# 	Memcached/spec/Rakefile
+# 	Memcached/spec/node_spec.rb
+# 	Memcached/spec/provisioner_spec.rb
+# 	Memcached/spec/spec_helper.rb
+# 	Memcached/wipe_clean
+# CORE FILES
+#  /bin/services/memcached_gateway
+#  /bin/services/memcached_node
+#  /bin/vcap
+#  /cloud_controller/config/cloud_controller.yml
+
+
+require 'trollop'
+require 'fileutils'
+
+def process_file(filename, strreplace)
+	text = File.read(filename)
+	datos = text.gsub("Redis", strreplace.capitalize)
+	datos = datos.gsub("redis", strreplace)
+	puts "Installing file  " + filename
+	File.open(filename, 'w') { |f| f.write(datos) }
+end
+
+def startup
+	opts = Trollop::options do
+		opt :svcname, "Name of service to create skeleton for", :type => String, :default=>""
+	end
+	Trollop::die :svcname, "You must provide a service name to create" if opts[:svcname].length == 0
+	puts "Installing custom service " + opts[:svcname]
+	opts[:svcname].downcase
+end
+
+def main_cycle(svcname)
+	curdir = Dir.pwd
+	Dir.chdir curdir+"/"+svcname
+	
+	process_file("Gemfile",svcname)
+	process_file("Rakefile",svcname)
+	process_file("wipe_clean",svcname)
+	
+	Dir.chdir curdir+"/"+svcname+"/bin"
+	process_file("redis_backup",svcname)
+	File.rename("redis_backup",svcname+"_backup")
+	process_file("redis_gateway",svcname)
+	File.rename("redis_gateway",svcname+"_gateway")
+	process_file("redis_node",svcname)
+	File.rename("redis_node",svcname+"_node")
+
+	Dir.chdir curdir+"/"+svcname+"/config"
+	process_file("redis_backup.yml",svcname)
+	File.rename("redis_backup.yml",svcname+"_backup.yml")
+	process_file("redis_gateway.yml",svcname)
+	File.rename("redis_gateway.yml",svcname+"_gateway.yml")
+	process_file("redis_node.yml",svcname)
+	File.rename("redis_node.yml",svcname+"_node.yml")
+	
+	Dir.chdir curdir+"/"+svcname+"/lib/redis_service"
+	process_file("common.rb",svcname)
+	process_file("redis_error.rb",svcname)
+	File.rename("redis_error.rb",svcname+"_error.rb")	
+	process_file("redis_node.rb",svcname)
+	File.rename("redis_node.rb",svcname+"_node.rb")	
+	process_file("redis_provisioner.rb",svcname)
+	File.rename("redis_provisioner.rb",svcname+"_provisioner.rb")	
+	
+
+	Dir.chdir curdir+"/"+svcname+"/resources"
+	process_file("redis.conf.erb",svcname)
+	File.rename("redis.conf.erb",svcname+".conf.erb")	
+
+	Dir.chdir curdir+"/"+svcname+"/spec"
+	process_file("Rakefile",svcname)
+	process_file("node_spec.rb",svcname)
+	process_file("provisioner_spec.rb",svcname)
+	process_file("spec_helper.rb",svcname)
+
+	Dir.chdir curdir
+	srcdir = curdir+"/"+svcname+"/lib/redis_service"
+	dstdir = curdir+"/"+svcname+"/lib/"+svcname+"_service"
+	puts srcdir, dstdir
+	FileUtils.mv srcdir, dstdir
+end
+
+def process_core_files(svcname)
+# Pending implementation
+end
+
+def put_skeleton_files(svcname)
+# Pending to implement
+end
+
+def end_process()
+# Pending implementation
+end
+
+# Main logic section
+servicename = startup
+put_skeleton_files(servicename)
+main_cycle(servicename)
+process_core_files(servicename)
+end_process()
+
+
+
+
+
+
