@@ -34,6 +34,7 @@
 
 require 'trollop'
 require 'fileutils'
+include FileUtils
 
 def process_file(filename, strreplace)
 	text = File.read(filename)
@@ -108,7 +109,19 @@ def process_core_files(svcname)
 end
 
 def put_skeleton_files(svcname)
-# Pending to implement
+# Remove the old directory
+    rm_rf Dir.pwd+"/"+svcname
+
+# Create the empty directory
+    begin
+        Dir.mkdir(Dir.pwd+"/"+svcname)
+    rescue
+        puts "the directory already exists"
+    end
+    
+# Copy the generic_custom directory to the new empty directory
+# The /. notation is to copy the directory contents, not the directory itself
+   cp_r Dir.pwd+"/generic_custom/.", Dir.pwd+"/"+svcname
 end
 
 def end_process()
