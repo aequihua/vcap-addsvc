@@ -40,6 +40,7 @@ def process_file(filename, strreplace)
 	text = File.read(filename)
 	datos = text.gsub("Redis", strreplace.capitalize)
 	datos = datos.gsub("redis", strreplace)
+	datos = datos.gsub("REDIS", strreplace.upcase)
 	puts "Installing file  " + filename
 	File.open(filename, 'w') { |f| f.write(datos) }
 end
