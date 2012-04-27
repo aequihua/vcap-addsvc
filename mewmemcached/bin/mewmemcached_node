@@ -1,0 +1,35 @@
+#!/usr/bin/env ruby
+# -*- mode: ruby -*-
+# Copyright (c) 2009-2011 VMware, Inc.
+
+ENV["BUNDLE_GEMFILE"] ||= File.expand_path("../../Gemfile", __FILE__)
+
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', '..', 'base', 'lib')
+require 'base/node_bin'
+
+$LOAD_PATH.unshift(File.expand_path("../../lib", __FILE__))
+require "mewmemcached_service/mewmemcached_node"
+
+class VCAP::Services::Mewmemcached::NodeBin < VCAP::Services::Base::NodeBin
+
+  def node_class
+    VCAP::Services::Mewmemcached::Node
+  end
+
+  def default_config_file
+    File.join(File.dirname(__FILE__), '..', 'config', 'mewmemcached_node.yml')
+  end
+
+  def additional_config(options, config)
+    options[:mewmemcached_server_path] = parse_property(config, "mewmemcached_server_path", String)
+    options[:config_template] = File.expand_path("../../resources/mewmemcached.conf.erb", __FILE__)
+    options[:port_range] = parse_property(config, "port_range", Range)
+    options[:available_memory] = parse_property(config, "available_memory", Integer)
+    options[:max_memory] = parse_property(config, "max_memory", Integer)
+    options[:max_swap] = parse_property(config, "max_swap", Integer)
+    options
+  end
+
+end
+
+VCAP::Services::Mewmemcached::NodeBin.new.start

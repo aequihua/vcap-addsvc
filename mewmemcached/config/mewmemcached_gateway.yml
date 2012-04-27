@@ -1,0 +1,21 @@
+---
+# cloud_controller_uri: api.vcap.me
+service:
+  name: mewmemcached
+  version: "2.2"
+  description: 'Mewmemcached key-value store service'
+  plans: ['free']
+  tags: ['mewmemcached', 'mewmemcached-2.2', 'key-value', 'nosql']
+ip_route: localhost
+#proxy:
+#   host: proxy
+#   port: 8080
+#   keepalive: true
+index: 0
+token: "0xdeadbeef"
+logging:
+  level: debug
+mbus: nats://localhost:4222
+pid: /var/vcap/sys/run/mewmemcached_service.pid
+# allow_over_provisioning: false
+# z_interval: 30
