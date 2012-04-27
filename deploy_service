@@ -1,6 +1,6 @@
-SVC_NAME=memcached
+SVC_NAME=mewmemcached
 SRC_DIR_VCAP=$HOME/cloudfoundry/source/vcap
-SRC_DIR_SVCS=$HOME/cloudfoundry/source/vcap-services
+SRC_DIR_SVCS=$HOME/cloudfoundry/source/vcap-addsvc
 PROD_DIR=$HOME/cloudfoundry/vcap
 
 echo "Downloading changes from GitHub"
